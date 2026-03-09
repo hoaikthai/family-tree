@@ -11,6 +11,7 @@ export function usePersons(treeId: string) {
   return useQuery({
     queryKey: ['persons', treeId],
     queryFn: () => listPersons(treeId),
+    enabled: !!treeId,
   })
 }
 
@@ -26,7 +27,7 @@ export function useCreatePerson(treeId: string) {
 export function useUpdatePerson(treeId: string) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, updates }: { id: string; updates: PersonUpdate }) =>
+    mutationFn: ({ id, updates }: { id: string; updates: Omit<PersonUpdate, 'id' | 'tree_id'> }) =>
       updatePerson(id, updates),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['persons', treeId] }),
   })

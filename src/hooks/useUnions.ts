@@ -8,6 +8,7 @@ export function useUnions(treeId: string) {
   return useQuery({
     queryKey: ['unions', treeId],
     queryFn: () => listUnions(treeId),
+    enabled: !!treeId,
   })
 }
 
