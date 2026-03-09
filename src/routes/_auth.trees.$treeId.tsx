@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import { TreeCanvas } from '@/components/TreeCanvas'
+import { PersonDetailPanel } from '@/components/PersonDetailPanel'
+import { AddPersonModal } from '@/components/AddPersonModal'
 
 export const Route = createFileRoute('/_auth/trees/$treeId')({
   component: TreeEditor,
@@ -36,10 +38,20 @@ function TreeEditor() {
       <div className="flex-1 relative">
         <TreeCanvas
           treeId={treeId}
-          onPersonClick={setSelectedPersonId}
+          onPersonClick={id => { setSelectedPersonId(id); setShowAddPerson(false) }}
         />
-        {/* PersonDetailPanel and modals added in Task 10 */}
+        {selectedPersonId && (
+          <PersonDetailPanel
+            treeId={treeId}
+            personId={selectedPersonId}
+            onClose={() => setSelectedPersonId(null)}
+          />
+        )}
       </div>
+      {showAddPerson && (
+        <AddPersonModal treeId={treeId} onClose={() => setShowAddPerson(false)} />
+      )}
+      {/* AddUnionModal added in Task 12 */}
     </div>
   )
 }
