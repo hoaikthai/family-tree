@@ -1,4 +1,8 @@
 import { supabase } from '../supabase'
+import type { Database } from '../database.types'
+
+type UnionMemberInsert = Database['public']['Tables']['union_members']['Insert']
+type UnionChildInsert = Database['public']['Tables']['union_children']['Insert']
 
 export async function listUnions(treeId: string) {
   const { data, error } = await supabase
@@ -32,9 +36,8 @@ export async function updateUnionPosition(id: string, x: number, y: number) {
 }
 
 export async function addMember(unionId: string, personId: string) {
-  const { error } = await supabase
-    .from('union_members')
-    .insert({ union_id: unionId, person_id: personId })
+  const payload: UnionMemberInsert = { union_id: unionId, person_id: personId }
+  const { error } = await supabase.from('union_members').insert(payload)
   if (error) throw error
 }
 
@@ -48,9 +51,8 @@ export async function removeMember(unionId: string, personId: string) {
 }
 
 export async function addChild(unionId: string, personId: string) {
-  const { error } = await supabase
-    .from('union_children')
-    .insert({ union_id: unionId, person_id: personId })
+  const payload: UnionChildInsert = { union_id: unionId, person_id: personId }
+  const { error } = await supabase.from('union_children').insert(payload)
   if (error) throw error
 }
 
