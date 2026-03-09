@@ -14,13 +14,19 @@ function Dashboard() {
   const createTree = useCreateTree()
   const deleteTree = useDeleteTree()
   const [newName, setNewName] = useState('')
+  const [createError, setCreateError] = useState<string | null>(null)
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault()
     if (!newName.trim()) return
-    const tree = await createTree.mutateAsync(newName.trim())
-    setNewName('')
-    navigate({ to: '/trees/$treeId', params: { treeId: tree.id } })
+    setCreateError(null)
+    try {
+      const tree = await createTree.mutateAsync(newName.trim())
+      setNewName('')
+      navigate({ to: '/trees/$treeId', params: { treeId: tree.id } })
+    } catch (err) {
+      setCreateError(err instanceof Error ? err.message : 'Failed to create tree')
+    }
   }
 
   return (
@@ -31,6 +37,11 @@ function Dashboard() {
           Sign out
         </button>
       </div>
+
+      {createError && <p className="text-red-600 text-sm mb-2">{createError}</p>}
+      {deleteTree.isError && (
+        <p className="text-red-600 text-sm mb-2">Failed to delete tree. Please try again.</p>
+      )}
 
       <form onSubmit={handleCreate} className="flex gap-2 mb-6">
         <input
