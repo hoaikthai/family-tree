@@ -9,7 +9,7 @@ export const Route = createFileRoute('/t/$treeId')({
 
 function PublicTreeView() {
   const { treeId } = Route.useParams()
-  const { data: tree, isLoading } = useQuery({
+  const { data: tree, isLoading, isError } = useQuery({
     queryKey: ['tree', treeId],
     queryFn: () => getTree(treeId),
   })
@@ -17,13 +17,8 @@ function PublicTreeView() {
   if (isLoading) {
     return <div className="flex h-screen items-center justify-center text-gray-500">Loading…</div>
   }
-  if (!tree?.is_public) {
-    return (
-      <div className="flex h-screen items-center justify-center text-gray-500">
-        Tree not found or not public.
-      </div>
-    )
-  }
+  if (isError) return <div className="p-8 text-gray-500">Could not load tree. Please try again later.</div>
+  if (!tree?.is_public) return <div className="p-8 text-gray-500">Tree not found or not public.</div>
 
   return (
     <div className="flex flex-col h-screen">

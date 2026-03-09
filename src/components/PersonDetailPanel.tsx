@@ -9,7 +9,7 @@ interface Props {
 
 function formatDate(date: string | null, yearOnly: boolean | null) {
   if (!date) return '—'
-  if (yearOnly) return new Date(date).getFullYear().toString()
+  if (yearOnly) return date.slice(0, 4)
   return new Date(date).toLocaleDateString()
 }
 
@@ -23,25 +23,32 @@ export function PersonDetailPanel({ treeId, personId, onClose }: Props) {
 
   const [deleteError, setDeleteError] = useState<string | null>(null)
 
-  if (!person) return null
-
   async function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    if (!person) return
     const file = e.target.files?.[0]
     if (!file) return
-    const url = await uploadPhoto.mutateAsync({ personId: person!.id, file })
-    await updatePerson.mutateAsync({ id: person!.id, updates: { photo_url: url } })
+    setDeleteError(null)
+    try {
+      const url = await uploadPhoto.mutateAsync({ personId: person.id, file })
+      await updatePerson.mutateAsync({ id: person.id, updates: { photo_url: url } })
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : 'Failed to upload photo')
+    }
   }
 
   async function handleDelete() {
-    if (!confirm(`Delete ${person!.first_name}${person!.last_name ? ' ' + person!.last_name : ''}?`)) return
+    if (!person) return
+    if (!confirm(`Delete ${person.first_name}${person.last_name ? ' ' + person.last_name : ''}?`)) return
     setDeleteError(null)
     try {
-      await deletePerson.mutateAsync(person!.id)
+      await deletePerson.mutateAsync(person.id)
       onClose()
     } catch (err) {
       setDeleteError(err instanceof Error ? err.message : 'Failed to delete')
     }
   }
+
+  if (!person) return null
 
   const name = [person.first_name, person.last_name].filter(Boolean).join(' ')
 

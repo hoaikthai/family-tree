@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { usePersons } from '@/hooks/usePersons'
-import { useCreateUnion, useAddMember } from '@/hooks/useUnions'
+import { useCreateUnion, useAddMember, useDeleteUnion } from '@/hooks/useUnions'
 
 interface Props {
   treeId: string
@@ -11,18 +11,28 @@ export function AddUnionModal({ treeId, onClose }: Props) {
   const { data: persons = [] } = usePersons(treeId)
   const createUnion = useCreateUnion(treeId)
   const addMember = useAddMember(treeId)
+  const deleteUnion = useDeleteUnion(treeId)
   const [parent1, setParent1] = useState('')
   const [parent2, setParent2] = useState('')
   const [error, setError] = useState<string | null>(null)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    if (parent1 && parent2 && parent1 === parent2) {
+      setError('Both parents cannot be the same person')
+      return
+    }
     setError(null)
     try {
       const union = await createUnion.mutateAsync()
-      if (parent1) await addMember.mutateAsync({ unionId: union.id, personId: parent1 })
-      if (parent2 && parent2 !== parent1) {
-        await addMember.mutateAsync({ unionId: union.id, personId: parent2 })
+      try {
+        if (parent1) await addMember.mutateAsync({ unionId: union.id, personId: parent1 })
+        if (parent2 && parent2 !== parent1) {
+          await addMember.mutateAsync({ unionId: union.id, personId: parent2 })
+        }
+      } catch (err) {
+        try { await deleteUnion.mutateAsync(union.id) } catch { /* best-effort */ }
+        throw err
       }
       onClose()
     } catch (err) {

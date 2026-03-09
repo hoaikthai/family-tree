@@ -1,9 +1,8 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useUpdateTree } from '@/hooks/useTrees'
 import { getTree, togglePublic } from '@/lib/api/trees'
-import { useQueryClient } from '@tanstack/react-query'
 
 export const Route = createFileRoute('/_auth/trees/$treeId/settings')({
   component: TreeSettings,
@@ -19,6 +18,8 @@ function TreeSettings() {
   const updateTree = useUpdateTree()
   const [name, setName] = useState('')
   const [togglePending, setTogglePending] = useState(false)
+  const [toggleError, setToggleError] = useState<string | null>(null)
+  const [renameError, setRenameError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
 
   useEffect(() => {
@@ -28,16 +29,27 @@ function TreeSettings() {
   async function handleRename(e: React.FormEvent) {
     e.preventDefault()
     if (!name.trim() || name === tree?.name) return
-    await updateTree.mutateAsync({ id: treeId, name: name.trim() })
-    qc.invalidateQueries({ queryKey: ['tree', treeId] })
+    setRenameError(null)
+    try {
+      await updateTree.mutateAsync({ id: treeId, name: name.trim() })
+      qc.invalidateQueries({ queryKey: ['tree', treeId] })
+    } catch (err) {
+      setRenameError(err instanceof Error ? err.message : 'Failed to rename tree')
+    }
   }
 
   async function handleToggle() {
     if (!tree) return
+    setToggleError(null)
     setTogglePending(true)
-    await togglePublic(treeId, !tree.is_public)
-    qc.invalidateQueries({ queryKey: ['tree', treeId] })
-    setTogglePending(false)
+    try {
+      await togglePublic(treeId, !tree.is_public)
+      qc.invalidateQueries({ queryKey: ['tree', treeId] })
+    } catch (err) {
+      setToggleError(err instanceof Error ? err.message : 'Failed to update')
+    } finally {
+      setTogglePending(false)
+    }
   }
 
   function handleCopy() {
@@ -55,30 +67,34 @@ function TreeSettings() {
 
       {/* Rename */}
       <section className="flex flex-col gap-2">
-        <label className="font-medium">Name</label>
+        <label htmlFor="tree-name" className="font-medium">Name</label>
         <form onSubmit={handleRename} className="flex gap-2">
-          <input value={name} onChange={e => setName(e.target.value)}
+          <input id="tree-name" value={name} onChange={e => setName(e.target.value)}
             className="border rounded px-3 py-2 flex-1" />
           <button type="submit" disabled={updateTree.isPending}
             className="bg-blue-600 text-white px-4 rounded disabled:opacity-50">
             Save
           </button>
         </form>
+        {renameError && <p className="text-red-600 text-sm">{renameError}</p>}
       </section>
 
       {/* Public toggle */}
-      <section className="flex items-center justify-between border rounded p-4">
-        <div>
-          <p className="font-medium">Public sharing</p>
-          <p className="text-sm text-gray-500">Anyone with the link can view this tree</p>
+      <section className="flex flex-col gap-2 border rounded p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="font-medium">Public sharing</p>
+            <p className="text-sm text-gray-500">Anyone with the link can view this tree</p>
+          </div>
+          <button
+            onClick={handleToggle}
+            disabled={togglePending}
+            aria-label={tree?.is_public ? 'Make private' : 'Make public'}
+            className={`relative w-12 h-6 rounded-full transition-colors disabled:opacity-50 ${tree?.is_public ? 'bg-blue-600' : 'bg-gray-300'}`}>
+            <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${tree?.is_public ? 'translate-x-6' : 'translate-x-0'}`} />
+          </button>
         </div>
-        <button
-          onClick={handleToggle}
-          disabled={togglePending}
-          aria-label={tree?.is_public ? 'Make private' : 'Make public'}
-          className={`relative w-12 h-6 rounded-full transition-colors disabled:opacity-50 ${tree?.is_public ? 'bg-blue-600' : 'bg-gray-300'}`}>
-          <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${tree?.is_public ? 'translate-x-6' : 'translate-x-0'}`} />
-        </button>
+        {toggleError && <p className="text-red-600 text-sm">{toggleError}</p>}
       </section>
 
       {/* Share link */}
