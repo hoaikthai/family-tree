@@ -68,13 +68,13 @@ In `src/index.css`:
 
 ```
 VITE_SUPABASE_URL=https://<project>.supabase.co
-VITE_SUPABASE_ANON_KEY=<anon-key>
+VITE_SUPABASE_PUBLISHABLE_KEY=<anon-key>
 ```
 
 And `.env.example`:
 ```
 VITE_SUPABASE_URL=
-VITE_SUPABASE_ANON_KEY=
+VITE_SUPABASE_PUBLISHABLE_KEY=
 ```
 
 **Step 5: Create `.gitignore`**
@@ -284,7 +284,7 @@ import type { Database } from './database.types'
 
 export const supabase = createClient<Database>(
   import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
+  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
 )
 ```
 
