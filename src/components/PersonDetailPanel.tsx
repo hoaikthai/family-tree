@@ -22,17 +22,18 @@ export function PersonDetailPanel({ treeId, personId, onClose }: Props) {
   const fileRef = useRef<HTMLInputElement>(null)
 
   const [deleteError, setDeleteError] = useState<string | null>(null)
+  const [photoError, setPhotoError] = useState<string | null>(null)
 
   async function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
     if (!person) return
     const file = e.target.files?.[0]
     if (!file) return
-    setDeleteError(null)
+    setPhotoError(null)
     try {
       const url = await uploadPhoto.mutateAsync({ personId: person.id, file })
       await updatePerson.mutateAsync({ id: person.id, updates: { photo_url: url } })
     } catch (err) {
-      setDeleteError(err instanceof Error ? err.message : 'Failed to upload photo')
+      setPhotoError(err instanceof Error ? err.message : 'Failed to upload photo')
     }
   }
 
@@ -80,6 +81,7 @@ export function PersonDetailPanel({ treeId, personId, onClose }: Props) {
           <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif"
             className="hidden" onChange={handlePhotoChange} />
         </div>
+        {photoError && <p className="text-red-600 text-xs text-center">{photoError}</p>}
 
         {/* Details */}
         <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
@@ -98,11 +100,11 @@ export function PersonDetailPanel({ treeId, personId, onClose }: Props) {
           </div>
         )}
 
-        {deleteError && <p className="text-red-600 text-xs">{deleteError}</p>}
       </div>
 
       {/* Actions */}
-      <div className="border-t p-4 flex gap-2">
+      <div className="border-t p-4 flex flex-col gap-2">
+        {deleteError && <p className="text-red-600 text-xs">{deleteError}</p>}
         <button
           onClick={handleDelete}
           disabled={deletePerson.isPending}

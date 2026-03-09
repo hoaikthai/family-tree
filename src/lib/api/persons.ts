@@ -39,14 +39,18 @@ export async function deletePerson(id: string) {
   if (error) throw error
 }
 
-const ALLOWED_IMAGE_EXTS = ['jpg', 'jpeg', 'png', 'webp', 'gif']
+const ALLOWED_MIME: Record<string, string> = {
+  jpg: 'image/jpeg', jpeg: 'image/jpeg',
+  png: 'image/png', webp: 'image/webp', gif: 'image/gif',
+}
 
 export async function uploadPhoto(treeId: string, personId: string, file: File) {
   const rawExt = file.name.split('.').pop()?.toLowerCase()
-  if (!rawExt || !ALLOWED_IMAGE_EXTS.includes(rawExt)) {
-    throw new Error('Unsupported file type. Allowed: jpg, jpeg, png, webp, gif')
+  if (!rawExt || !(rawExt in ALLOWED_MIME) || ALLOWED_MIME[rawExt] !== file.type) {
+    throw new Error('Unsupported file type')
   }
-  const path = `${treeId}/${personId}.${rawExt}`
+  const ext = rawExt
+  const path = `${treeId}/${personId}.${ext}`
   const { error: uploadError } = await supabase.storage
     .from('avatars')
     .upload(path, file, { upsert: true })

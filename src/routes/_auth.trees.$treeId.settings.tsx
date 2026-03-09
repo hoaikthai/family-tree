@@ -45,6 +45,7 @@ function TreeSettings() {
     try {
       await togglePublic(treeId, !tree.is_public)
       qc.invalidateQueries({ queryKey: ['tree', treeId] })
+      qc.invalidateQueries({ queryKey: ['trees'] })
     } catch (err) {
       setToggleError(err instanceof Error ? err.message : 'Failed to update')
     } finally {

@@ -64,8 +64,9 @@ export function useRemoveChild(treeId: string) {
   })
 }
 
-export function useUpdateUnionPosition(treeId: string) {
-  // Fire-and-forget: position updates are debounced by the canvas; no query invalidation needed
+export function useUpdateUnionPosition(_treeId: string) {
+  // Fire-and-forget: position updates are debounced by the canvas; no query invalidation needed.
+  // _treeId is accepted for API consistency but not used.
   return useMutation({
     mutationFn: ({ id, x, y }: { id: string; x: number; y: number }) =>
       updateUnionPosition(id, x, y),
