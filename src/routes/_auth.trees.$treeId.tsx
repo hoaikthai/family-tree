@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { TreeCanvas } from '@/components/TreeCanvas'
 import { PersonDetailPanel } from '@/components/PersonDetailPanel'
 import { AddPersonModal } from '@/components/AddPersonModal'
+import { AddUnionModal } from '@/components/AddUnionModal'
 
 export const Route = createFileRoute('/_auth/trees/$treeId')({
   component: TreeEditor,
@@ -51,7 +52,9 @@ function TreeEditor() {
       {showAddPerson && (
         <AddPersonModal treeId={treeId} onClose={() => setShowAddPerson(false)} />
       )}
-      {/* AddUnionModal added in Task 12 */}
+      {showAddUnion && (
+        <AddUnionModal treeId={treeId} onClose={() => setShowAddUnion(false)} />
+      )}
     </div>
   )
 }
