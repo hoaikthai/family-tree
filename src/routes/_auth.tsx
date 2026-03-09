@@ -3,7 +3,8 @@ import { supabase } from '@/lib/supabase'
 
 export const Route = createFileRoute('/_auth')({
   beforeLoad: async () => {
-    const { data: { session } } = await supabase.auth.getSession()
+    const { data: { session }, error } = await supabase.auth.getSession()
+    if (error) throw error
     if (!session) throw redirect({ to: '/login' })
   },
   component: () => <Outlet />,
