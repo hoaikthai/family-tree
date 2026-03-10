@@ -10,11 +10,14 @@ export async function listUnions(treeId: string) {
     .select(`
       *,
       union_members(person_id),
-      union_children(person_id)
+      union_children(person_id, position)
     `)
     .eq('tree_id', treeId)
   if (error) throw error
-  return data
+  return data.map(u => ({
+    ...u,
+    union_children: [...u.union_children].sort((a, b) => a.position - b.position),
+  }))
 }
 
 export async function createUnion(treeId: string) {
@@ -51,8 +54,27 @@ export async function removeMember(unionId: string, personId: string) {
 }
 
 export async function addChild(unionId: string, personId: string) {
-  const payload: UnionChildInsert = { union_id: unionId, person_id: personId }
-  const { error } = await supabase.from('union_children').insert(payload)
+  const { count } = await supabase
+    .from('union_children')
+    .select('*', { count: 'exact', head: true })
+    .eq('union_id', unionId)
+
+  const payload: UnionChildInsert = { union_id: unionId, person_id: personId, position: count ?? 0 }
+  const { data, error } = await supabase.from('union_children').insert(payload).select().single()
+  if (error) throw error
+  return data
+}
+
+export async function updateChildPosition(
+  unionId: string,
+  personId: string,
+  position: number
+) {
+  const { error } = await supabase
+    .from('union_children')
+    .update({ position })
+    .eq('union_id', unionId)
+    .eq('person_id', personId)
   if (error) throw error
 }
 

@@ -2,6 +2,7 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import { TreeCanvas } from '@/components/TreeCanvas'
 import { PersonDetailPanel } from '@/components/PersonDetailPanel'
+import { UnionDetailPanel } from '@/components/UnionDetailPanel'
 import { AddPersonModal } from '@/components/AddPersonModal'
 import { AddUnionModal } from '@/components/AddUnionModal'
 
@@ -12,6 +13,7 @@ export const Route = createFileRoute('/_auth/trees/$treeId')({
 function TreeEditor() {
   const { treeId } = Route.useParams()
   const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null)
+  const [selectedUnionId, setSelectedUnionId] = useState<string | null>(null)
   const [showAddPerson, setShowAddPerson] = useState(false)
   const [showAddUnion, setShowAddUnion] = useState(false)
 
@@ -39,7 +41,8 @@ function TreeEditor() {
       <div className="flex-1 relative">
         <TreeCanvas
           treeId={treeId}
-          onPersonClick={id => { setSelectedPersonId(id); setShowAddPerson(false) }}
+          onPersonClick={id => { setSelectedPersonId(id); setSelectedUnionId(null); setShowAddPerson(false) }}
+          onUnionClick={id => { setSelectedUnionId(id); setSelectedPersonId(null) }}
         />
         {selectedPersonId && (
           <PersonDetailPanel
@@ -48,6 +51,11 @@ function TreeEditor() {
             onClose={() => setSelectedPersonId(null)}
           />
         )}
+        <UnionDetailPanel
+          unionId={selectedUnionId}
+          treeId={treeId}
+          onClose={() => setSelectedUnionId(null)}
+        />
       </div>
       {showAddPerson && (
         <AddPersonModal treeId={treeId} onClose={() => setShowAddPerson(false)} />

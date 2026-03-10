@@ -20,9 +20,10 @@ interface Props {
   treeId: string
   readOnly?: boolean
   onPersonClick?: (personId: string) => void
+  onUnionClick?: (unionId: string) => void
 }
 
-export function TreeCanvas({ treeId, readOnly = false, onPersonClick }: Props) {
+export function TreeCanvas({ treeId, readOnly = false, onPersonClick, onUnionClick }: Props) {
   const { data: persons = [] } = usePersons(treeId)
   const { data: unions = [] } = useUnions(treeId)
   const updatePerson = useUpdatePerson(treeId)
@@ -94,8 +95,10 @@ export function TreeCanvas({ treeId, readOnly = false, onPersonClick }: Props) {
   const onNodeClick: NodeMouseHandler = useCallback((_event, node) => {
     if (node.id.startsWith('person-') && onPersonClick) {
       onPersonClick(node.id.slice('person-'.length))
+    } else if (node.id.startsWith('union-') && onUnionClick) {
+      onUnionClick(node.id.slice('union-'.length))
     }
-  }, [onPersonClick])
+  }, [onPersonClick, onUnionClick])
 
   return (
     <ReactFlow

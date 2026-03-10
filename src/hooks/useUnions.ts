@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   addChild, addMember, createUnion, deleteUnion,
-  listUnions, removeChild, removeMember, updateUnionPosition
+  listUnions, removeChild, removeMember, updateChildPosition, updateUnionPosition
 } from '@/lib/api/unions'
 
 export function useUnions(treeId: string) {
@@ -60,6 +60,15 @@ export function useRemoveChild(treeId: string) {
   return useMutation({
     mutationFn: ({ unionId, personId }: { unionId: string; personId: string }) =>
       removeChild(unionId, personId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['unions', treeId] }),
+  })
+}
+
+export function useUpdateChildPosition(treeId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ unionId, personId, position }: { unionId: string; personId: string; position: number }) =>
+      updateChildPosition(unionId, personId, position),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['unions', treeId] }),
   })
 }

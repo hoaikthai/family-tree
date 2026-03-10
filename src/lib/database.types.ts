@@ -100,14 +100,17 @@ export type Database = {
       union_children: {
         Row: {
           person_id: string
+          position: number
           union_id: string
         }
         Insert: {
           person_id: string
+          position?: number
           union_id: string
         }
         Update: {
           person_id?: string
+          position?: number
           union_id?: string
         }
         Relationships: [
