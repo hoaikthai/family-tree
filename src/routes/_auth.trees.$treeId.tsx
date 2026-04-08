@@ -2,13 +2,13 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TreeCanvas } from '@/components/TreeCanvas'
-import { PersonDetailPanel } from '@/components/PersonDetailPanel'
-import { UnionDetailPanel } from '@/components/UnionDetailPanel'
-import { AddPersonModal } from '@/components/AddPersonModal'
-import { AddUnionModal } from '@/components/AddUnionModal'
+import { PersonDetailPanel } from '@/features/persons/PersonDetailPanel'
+import { UnionDetailPanel } from '@/features/unions/UnionDetailPanel'
+import { AddPersonModal } from '@/features/persons/AddPersonModal'
+import { AddUnionModal } from '@/features/unions/AddUnionModal'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { UserSettingsButton } from '@/components/UserSettingsSheet'
+import { UserSettingsButton } from '@/features/settings/UserSettingsSheet'
 
 export const Route = createFileRoute('/_auth/trees/$treeId')({
   component: TreeEditor,

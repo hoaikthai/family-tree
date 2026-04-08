@@ -2,7 +2,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   getPreferences,
   upsertPreferences,
-  type UserPreferences,
 } from '@/lib/api/userPreferences'
 
 export function useUserPreferences() {

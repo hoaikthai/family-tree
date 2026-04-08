@@ -21,6 +21,7 @@
     "personForm.gender.male": "Nam",
     "personForm.gender.female": "Nữ",
     "personForm.gender.other": "Khác",
+    "personForm.gender.unset": "Không xác định",
     "personForm.birthDate": "Ngày sinh",
     "personForm.deathDate": "Ngày chết",
     "personForm.deathDateOnly": "Chỉ năm",

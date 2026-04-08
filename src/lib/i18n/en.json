@@ -21,6 +21,7 @@
     "personForm.gender.male": "Male",
     "personForm.gender.female": "Female",
     "personForm.gender.other": "Other",
+    "personForm.gender.unset": "Not specified",
     "personForm.birthDate": "Birth date",
     "personForm.deathDate": "Date of death",
     "personForm.deathDateOnly": "Year only",

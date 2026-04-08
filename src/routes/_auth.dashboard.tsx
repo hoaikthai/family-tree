@@ -5,7 +5,7 @@ import { useCreateTree, useDeleteTree, useTrees } from '@/hooks/useTrees'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
-import { UserSettingsButton } from '@/components/UserSettingsSheet'
+import { UserSettingsButton } from '@/features/settings/UserSettingsSheet'
 
 export const Route = createFileRoute('/_auth/dashboard')({
   component: Dashboard,
