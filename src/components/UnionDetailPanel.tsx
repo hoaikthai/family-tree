@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import { usePersons } from '@/hooks/usePersons'
-import { useUnions, useUpdateChildPosition } from '@/hooks/useUnions'
+import { useUnions, useAddChild, useRemoveChild, useUpdateChildPosition } from '@/hooks/useUnions'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 type Props = {
   unionId: string | null
@@ -14,6 +16,9 @@ export function UnionDetailPanel({ unionId, treeId, open, onClose }: Props) {
   const { data: unions } = useUnions(treeId)
   const { data: persons } = usePersons(treeId)
   const updatePos = useUpdateChildPosition(treeId)
+  const addChild = useAddChild(treeId)
+  const removeChild = useRemoveChild(treeId)
+  const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null)
 
   const union = unions?.find(u => u.id === unionId)
   const personMap = new Map(persons?.map(p => [p.id, p]) ?? [])
@@ -25,6 +30,18 @@ export function UnionDetailPanel({ unionId, treeId, open, onClose }: Props) {
         .map(c => ({ ...c, person: personMap.get(c.person_id) }))
         .filter(c => c.person)
     : []
+
+  const assignedIds = new Set([
+    ...(union?.union_members.map(m => m.person_id) ?? []),
+    ...(union?.union_children.map(c => c.person_id) ?? []),
+  ])
+  const availablePersons = persons?.filter(p => !assignedIds.has(p.id)) ?? []
+
+  async function handleAddChild() {
+    if (!union || !selectedPersonId) return
+    await addChild.mutateAsync({ unionId: union.id, personId: selectedPersonId })
+    setSelectedPersonId('')
+  }
 
   async function move(personId: string, fromPos: number, toPos: number) {
     const swap = union!.union_children.find(c => c.position === toPos)
@@ -90,9 +107,39 @@ export function UnionDetailPanel({ unionId, treeId, open, onClose }: Props) {
                           aria-label="Move down"
                           className="h-7 w-7"
                         >↓</Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeChild.mutate({ unionId: union!.id, personId: c.person_id })}
+                          disabled={removeChild.isPending}
+                          aria-label="Remove child"
+                          className="h-7 w-7 text-gray-400 hover:text-red-500"
+                        >×</Button>
                       </li>
                     ))}
                   </ul>
+                )}
+                {availablePersons.length > 0 && (
+                  <div className="flex gap-2 mt-3">
+                    <Select value={selectedPersonId} onValueChange={setSelectedPersonId}>
+                      <SelectTrigger className="flex-1 h-8 text-sm">
+                        <SelectValue placeholder="Add child…" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availablePersons.map(p => (
+                          <SelectItem key={p.id} value={p.id}>
+                            {p.first_name} {p.last_name ?? ''}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      size="sm"
+                      onClick={handleAddChild}
+                      disabled={!selectedPersonId || addChild.isPending}
+                      className="h-8"
+                    >Add</Button>
+                  </div>
                 )}
               </section>
             </div>
