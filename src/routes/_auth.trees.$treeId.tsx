@@ -7,6 +7,7 @@ import { AddPersonModal } from '@/components/AddPersonModal'
 import { AddUnionModal } from '@/components/AddUnionModal'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { UserSettingsButton } from '@/components/UserSettingsSheet'
 
 export const Route = createFileRoute('/_auth/trees/$treeId')({
   component: TreeEditor,
@@ -26,6 +27,7 @@ function TreeEditor() {
           ← Dashboard
         </Link>
         <div className="flex gap-2">
+          <UserSettingsButton />
           <Button onClick={() => setShowAddPerson(true)}>
             Add person
           </Button>

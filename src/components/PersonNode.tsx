@@ -1,5 +1,8 @@
 import { Handle, Position } from '@xyflow/react'
 import type { NodeProps } from '@xyflow/react'
+import { useUserPreferences } from '@/hooks/useUserPreferences'
+import { formatName } from '@/lib/formatName'
+import { DEFAULT_PREFERENCES } from '@/lib/api/userPreferences'
 
 export interface PersonNodeData {
   firstName: string
@@ -13,7 +16,10 @@ export interface PersonNodeData {
 
 export function PersonNode({ data, selected }: NodeProps) {
   const d = data as PersonNodeData
-  const name = [d.firstName, d.lastName].filter(Boolean).join(' ')
+  const { data: prefs } = useUserPreferences()
+  const nameOrder = prefs?.name_order ?? DEFAULT_PREFERENCES.name_order
+  const name = formatName(d.firstName, d.lastName, nameOrder)
+
   return (
     <div className={`
       bg-white border-2 rounded-xl shadow-sm w-36 overflow-hidden cursor-pointer
