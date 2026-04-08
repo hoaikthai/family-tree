@@ -29,5 +29,3 @@ docs
 # Supabase
 supabase/.temp
 
-# TanStack Router (auto-generated)
-src/routeTree.gen.ts
