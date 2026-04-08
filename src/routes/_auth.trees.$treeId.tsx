@@ -5,6 +5,8 @@ import { PersonDetailPanel } from '@/components/PersonDetailPanel'
 import { UnionDetailPanel } from '@/components/UnionDetailPanel'
 import { AddPersonModal } from '@/components/AddPersonModal'
 import { AddUnionModal } from '@/components/AddUnionModal'
+import { Button, buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/_auth/trees/$treeId')({
   component: TreeEditor,
@@ -20,20 +22,21 @@ function TreeEditor() {
   return (
     <div className="flex h-screen flex-col">
       <nav className="flex items-center justify-between px-4 py-2 border-b bg-white z-10">
-        <Link to="/dashboard" className="text-sm text-blue-600 underline">← Dashboard</Link>
+        <Link to="/dashboard" className={cn(buttonVariants({ variant: 'link', size: 'sm' }), 'p-0')}>
+          ← Dashboard
+        </Link>
         <div className="flex gap-2">
-          <button
-            onClick={() => setShowAddPerson(true)}
-            className="bg-blue-600 text-white px-3 py-1.5 rounded text-sm">
+          <Button onClick={() => setShowAddPerson(true)}>
             Add person
-          </button>
-          <button
-            onClick={() => setShowAddUnion(true)}
-            className="border px-3 py-1.5 rounded text-sm">
+          </Button>
+          <Button variant="outline" onClick={() => setShowAddUnion(true)}>
             Add union
-          </button>
-          <Link to="/trees/$treeId/settings" params={{ treeId }}
-            className="border px-3 py-1.5 rounded text-sm">
+          </Button>
+          <Link
+            to="/trees/$treeId/settings"
+            params={{ treeId }}
+            className={buttonVariants({ variant: 'outline', size: 'sm' })}
+          >
             Settings
           </Link>
         </div>
@@ -53,6 +56,7 @@ function TreeEditor() {
         <UnionDetailPanel
           unionId={selectedUnionId}
           treeId={treeId}
+          open={!!selectedUnionId}
           onClose={() => setSelectedUnionId(null)}
         />
       </div>
