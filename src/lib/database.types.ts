@@ -192,6 +192,30 @@ export type Database = {
           },
         ]
       }
+      user_preferences: {
+        Row: {
+          user_id: string
+          name_order: string
+          date_format: string
+          language: string
+          updated_at: string
+        }
+        Insert: {
+          user_id: string
+          name_order?: string
+          date_format?: string
+          language?: string
+          updated_at?: string
+        }
+        Update: {
+          user_id?: string
+          name_order?: string
+          date_format?: string
+          language?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
