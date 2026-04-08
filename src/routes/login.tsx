@@ -2,6 +2,8 @@ import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
 export const Route = createFileRoute('/login')({
   beforeLoad: async () => {
@@ -38,27 +40,28 @@ function LoginPage() {
           {mode === 'signin' ? 'Sign in' : 'Create account'}
         </h1>
         {error && <p className="text-red-600 text-sm">{error}</p>}
-        <input
+        <Input
           type="email" placeholder="Email" value={email}
           onChange={e => setEmail(e.target.value)}
-          className="border rounded px-3 py-2"
           required
         />
-        <input
+        <Input
           type="password" placeholder="Password" value={password}
           onChange={e => setPassword(e.target.value)}
-          className="border rounded px-3 py-2"
           required
         />
-        <button type="submit" disabled={isSubmitting}
-          className="bg-blue-600 text-white py-2 rounded disabled:opacity-50">
+        <Button type="submit" disabled={isSubmitting} className="w-full">
           {isSubmitting ? 'Please wait…' : mode === 'signin' ? 'Sign in' : 'Sign up'}
-        </button>
-        <button type="button" disabled={isSubmitting}
+        </Button>
+        <Button
+          type="button"
+          variant="link"
+          disabled={isSubmitting}
+          className="text-sm"
           onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}
-          className="text-sm text-blue-600 underline disabled:opacity-50">
+        >
           {mode === 'signin' ? 'No account? Sign up' : 'Have an account? Sign in'}
-        </button>
+        </Button>
       </form>
     </div>
   )
