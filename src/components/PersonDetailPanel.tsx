@@ -1,9 +1,12 @@
 import { useRef, useState } from 'react'
 import { usePersons, useUpdatePerson, useDeletePerson, useUploadPhoto } from '@/hooks/usePersons'
+import { Button } from '@/components/ui/button'
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 
 interface Props {
   treeId: string
-  personId: string
+  personId: string | null
+  open: boolean
   onClose: () => void
 }
 
@@ -13,7 +16,7 @@ function formatDate(date: string | null, yearOnly: boolean | null) {
   return new Date(date).toLocaleDateString()
 }
 
-export function PersonDetailPanel({ treeId, personId, onClose }: Props) {
+export function PersonDetailPanel({ treeId, personId, open, onClose }: Props) {
   const { data: persons = [] } = usePersons(treeId)
   const updatePerson = useUpdatePerson(treeId)
   const deletePerson = useDeletePerson(treeId)
@@ -49,69 +52,73 @@ export function PersonDetailPanel({ treeId, personId, onClose }: Props) {
     }
   }
 
-  if (!person) return null
-
-  const name = [person.first_name, person.last_name].filter(Boolean).join(' ')
+  const name = person ? [person.first_name, person.last_name].filter(Boolean).join(' ') : ''
 
   return (
-    <aside className="absolute right-0 top-0 h-full w-80 bg-white border-l shadow-lg flex flex-col z-10 overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-3 border-b">
-        <h2 className="font-bold text-base truncate">{name}</h2>
-        <button onClick={onClose} className="text-gray-400 hover:text-gray-600 ml-2" aria-label="Close">✕</button>
-      </div>
+    <Sheet open={open} onOpenChange={(o) => !o && onClose()}>
+      <SheetContent side="right" className="w-80 p-0 flex flex-col">
+        {person && (
+          <>
+            <SheetHeader className="px-4 py-3 border-b">
+              <SheetTitle className="font-bold text-base truncate">{name}</SheetTitle>
+            </SheetHeader>
 
-      <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
-        {/* Photo */}
-        <div
-          className="relative w-24 h-24 mx-auto rounded-full overflow-hidden bg-gray-100 cursor-pointer ring-2 ring-offset-2 ring-gray-200 hover:ring-blue-400 transition-all"
-          onClick={() => fileRef.current?.click()}
-          title="Click to change photo"
-        >
-          {person.photo_url
-            ? <img src={person.photo_url} alt={name} className="w-full h-full object-cover" />
-            : <span className="absolute inset-0 flex items-center justify-center text-3xl text-gray-400 select-none">
-                {person.first_name.charAt(0).toUpperCase()}
-              </span>
-          }
-          {uploadPhoto.isPending && (
-            <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-              <span className="text-white text-xs">Uploading…</span>
+            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
+              {/* Photo */}
+              <div
+                className="relative w-24 h-24 mx-auto rounded-full overflow-hidden bg-gray-100 cursor-pointer ring-2 ring-offset-2 ring-gray-200 hover:ring-blue-400 transition-all"
+                onClick={() => fileRef.current?.click()}
+                title="Click to change photo"
+              >
+                {person.photo_url
+                  ? <img src={person.photo_url} alt={name} className="w-full h-full object-cover" />
+                  : <span className="absolute inset-0 flex items-center justify-center text-3xl text-gray-400 select-none">
+                      {person.first_name.charAt(0).toUpperCase()}
+                    </span>
+                }
+                {uploadPhoto.isPending && (
+                  <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                    <span className="text-white text-xs">Uploading…</span>
+                  </div>
+                )}
+                <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif"
+                  className="hidden" onChange={handlePhotoChange} />
+              </div>
+              {photoError && <p className="text-red-600 text-xs text-center">{photoError}</p>}
+
+              {/* Details */}
+              <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
+                <dt className="text-gray-500">Gender</dt>
+                <dd className="capitalize">{person.gender ?? '—'}</dd>
+                <dt className="text-gray-500">Born</dt>
+                <dd>{formatDate(person.birth_date, person.is_birth_year_only)}</dd>
+                <dt className="text-gray-500">Died</dt>
+                <dd>{formatDate(person.death_date, person.is_death_year_only)}</dd>
+              </dl>
+
+              {person.notes && (
+                <div className="border-t pt-3">
+                  <p className="text-xs text-gray-500 mb-1">Notes</p>
+                  <p className="text-sm text-gray-700 whitespace-pre-wrap">{person.notes}</p>
+                </div>
+              )}
             </div>
-          )}
-          <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif"
-            className="hidden" onChange={handlePhotoChange} />
-        </div>
-        {photoError && <p className="text-red-600 text-xs text-center">{photoError}</p>}
 
-        {/* Details */}
-        <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
-          <dt className="text-gray-500">Gender</dt>
-          <dd className="capitalize">{person.gender ?? '—'}</dd>
-          <dt className="text-gray-500">Born</dt>
-          <dd>{formatDate(person.birth_date, person.is_birth_year_only)}</dd>
-          <dt className="text-gray-500">Died</dt>
-          <dd>{formatDate(person.death_date, person.is_death_year_only)}</dd>
-        </dl>
-
-        {person.notes && (
-          <div className="border-t pt-3">
-            <p className="text-xs text-gray-500 mb-1">Notes</p>
-            <p className="text-sm text-gray-700 whitespace-pre-wrap">{person.notes}</p>
-          </div>
+            {/* Actions */}
+            <div className="border-t p-4 flex flex-col gap-2">
+              {deleteError && <p className="text-red-600 text-xs">{deleteError}</p>}
+              <Button
+                variant="destructive"
+                className="w-full"
+                onClick={handleDelete}
+                disabled={deletePerson.isPending}
+              >
+                {deletePerson.isPending ? 'Deleting…' : 'Delete'}
+              </Button>
+            </div>
+          </>
         )}
-
-      </div>
-
-      {/* Actions */}
-      <div className="border-t p-4 flex flex-col gap-2">
-        {deleteError && <p className="text-red-600 text-xs">{deleteError}</p>}
-        <button
-          onClick={handleDelete}
-          disabled={deletePerson.isPending}
-          className="flex-1 border border-red-300 text-red-600 rounded py-1.5 text-sm disabled:opacity-50">
-          {deletePerson.isPending ? 'Deleting…' : 'Delete'}
-        </button>
-      </div>
-    </aside>
+      </SheetContent>
+    </Sheet>
   )
 }

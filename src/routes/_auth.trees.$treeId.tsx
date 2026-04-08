@@ -44,13 +44,12 @@ function TreeEditor() {
           onPersonClick={id => { setSelectedPersonId(id); setSelectedUnionId(null); setShowAddPerson(false) }}
           onUnionClick={id => { setSelectedUnionId(id); setSelectedPersonId(null) }}
         />
-        {selectedPersonId && (
-          <PersonDetailPanel
-            treeId={treeId}
-            personId={selectedPersonId}
-            onClose={() => setSelectedPersonId(null)}
-          />
-        )}
+        <PersonDetailPanel
+          treeId={treeId}
+          personId={selectedPersonId}
+          open={!!selectedPersonId}
+          onClose={() => setSelectedPersonId(null)}
+        />
         <UnionDetailPanel
           unionId={selectedUnionId}
           treeId={treeId}
