@@ -5,6 +5,7 @@ import { useCreateTree, useDeleteTree, useTrees } from '@/hooks/useTrees'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
+import { UserSettingsButton } from '@/components/UserSettingsSheet'
 
 export const Route = createFileRoute('/_auth/dashboard')({
   component: Dashboard,
@@ -36,9 +37,12 @@ function Dashboard() {
     <div className="max-w-2xl mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">My Family Trees</h1>
-        <Button variant="link" size="sm" className="text-gray-500" onClick={() => signOut()}>
-          Sign out
-        </Button>
+        <div className="flex items-center gap-2">
+          <UserSettingsButton />
+          <Button variant="link" size="sm" className="text-gray-500" onClick={() => signOut()}>
+            Sign out
+          </Button>
+        </div>
       </div>
 
       {createError && <p className="text-red-600 text-sm mb-2">{createError}</p>}
