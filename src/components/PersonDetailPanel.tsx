@@ -44,6 +44,7 @@ export function PersonDetailPanel({ treeId, personId, open, onClose }: Props) {
 
   const nameOrder = prefs?.name_order ?? DEFAULT_PREFERENCES.name_order
   const dateFormat = prefs?.date_format ?? DEFAULT_PREFERENCES.date_format
+  const genderLabels: Record<string, string> = { male: 'Male', female: 'Female', other: 'Other' }
 
   function startEditing() {
     if (!person) return
@@ -139,7 +140,9 @@ export function PersonDetailPanel({ treeId, personId, open, onClose }: Props) {
                   onValueChange={v => setField('gender', v as typeof editForm.gender)}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Gender (optional)" />
+                    <SelectValue placeholder="Gender (optional)">
+                      {editForm.gender && genderLabels[editForm.gender]}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="male">Male</SelectItem>

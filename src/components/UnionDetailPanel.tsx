@@ -1,9 +1,12 @@
 import { useState } from 'react'
 import { usePersons } from '@/hooks/usePersons'
+import { useUserPreferences } from '@/hooks/useUserPreferences'
 import { useUnions, useAddChild, useRemoveChild, useUpdateChildPosition } from '@/hooks/useUnions'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { getPersonName } from '@/lib/getPersonName'
+import { DEFAULT_PREFERENCES } from '@/lib/api/userPreferences'
 
 type Props = {
   unionId: string | null
@@ -15,10 +18,13 @@ type Props = {
 export function UnionDetailPanel({ unionId, treeId, open, onClose }: Props) {
   const { data: unions } = useUnions(treeId)
   const { data: persons } = usePersons(treeId)
+  const { data: prefs } = useUserPreferences()
   const updatePos = useUpdateChildPosition(treeId)
   const addChild = useAddChild(treeId)
   const removeChild = useRemoveChild(treeId)
   const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null)
+
+  const nameOrder = prefs?.name_order ?? DEFAULT_PREFERENCES.name_order
 
   const union = unions?.find(u => u.id === unionId)
   const personMap = new Map(persons?.map(p => [p.id, p]) ?? [])
@@ -121,14 +127,16 @@ export function UnionDetailPanel({ unionId, treeId, open, onClose }: Props) {
                 )}
                 {availablePersons.length > 0 && (
                   <div className="flex gap-2 mt-3">
-                    <Select value={selectedPersonId} onValueChange={setSelectedPersonId}>
+                    <Select value={selectedPersonId || ''} onValueChange={setSelectedPersonId}>
                       <SelectTrigger className="flex-1 h-8 text-sm">
-                        <SelectValue placeholder="Add child…" />
+                        <SelectValue placeholder="Add child…">
+                          {selectedPersonId && getPersonName(selectedPersonId, persons!, nameOrder)}
+                        </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         {availablePersons.map(p => (
                           <SelectItem key={p.id} value={p.id}>
-                            {p.first_name} {p.last_name ?? ''}
+                            {getPersonName(p.id, availablePersons, nameOrder)}
                           </SelectItem>
                         ))}
                       </SelectContent>

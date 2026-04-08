@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type SubmitEvent } from 'react'
 import { useCreatePerson } from '@/hooks/usePersons'
 import type { Database } from '@/lib/database.types'
 import { Button } from '@/components/ui/button'
@@ -38,18 +38,18 @@ export function AddPersonModal({ treeId, open, onClose }: Props) {
     setForm(prev => ({ ...prev, [key]: value }))
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: SubmitEvent) {
     e.preventDefault()
     setError(null)
     const payload: Omit<PersonInsert, 'tree_id'> = {
       first_name: form.first_name,
-      last_name: form.last_name || null,
-      gender: (form.gender || null) as PersonInsert['gender'],
+      last_name: form.last_name ?? null,
+      gender: (form.gender ?? null) as PersonInsert['gender'],
       birth_date: form.birth_date || null,
       is_birth_year_only: form.is_birth_year_only,
       death_date: form.death_date || null,
       is_death_year_only: form.is_death_year_only,
-      notes: form.notes || null,
+      notes: form.notes ?? null,
     }
     try {
       await createPerson.mutateAsync(payload)
@@ -58,6 +58,8 @@ export function AddPersonModal({ treeId, open, onClose }: Props) {
       setError(err instanceof Error ? err.message : 'Failed to add person')
     }
   }
+
+  const genderLabels: Record<string, string> = { male: 'Male', female: 'Female', other: 'Other' }
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
@@ -72,11 +74,13 @@ export function AddPersonModal({ treeId, open, onClose }: Props) {
           <Input placeholder="Last name" value={form.last_name}
             onChange={e => set('last_name', e.target.value)} />
           <Select
-            value={form.gender || undefined}
+            value={form.gender ?? undefined}
             onValueChange={(v) => set('gender', v as typeof form.gender)}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Gender (optional)" />
+              <SelectValue placeholder="Gender (optional)">
+                {form.gender && genderLabels[form.gender]}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="male">Male</SelectItem>

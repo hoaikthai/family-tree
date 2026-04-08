@@ -34,6 +34,9 @@ export function UserSettingsSheet({ open, onClose }: Props) {
     setForm(f => ({ ...f, [key]: value }))
   }
 
+  const nameOrderLabels: Record<string, string> = { 'first-last': 'First Last', 'last-first': 'Last First' }
+  const languageLabels: Record<string, string> = { 'en': 'English', 'fr': 'Français', 'vi': 'Tiếng Việt' }
+
   async function handleSave() {
     setSaveError(null)
     try {
@@ -59,7 +62,9 @@ export function UserSettingsSheet({ open, onClose }: Props) {
               onValueChange={v => set('name_order', v as UserPreferences['name_order'])}
             >
               <SelectTrigger className="w-full">
-                <SelectValue />
+                <SelectValue>
+                  {nameOrderLabels[form.name_order]}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="first-last">First Last</SelectItem>
@@ -75,7 +80,9 @@ export function UserSettingsSheet({ open, onClose }: Props) {
               onValueChange={v => set('date_format', v as UserPreferences['date_format'])}
             >
               <SelectTrigger className="w-full">
-                <SelectValue />
+                <SelectValue>
+                  {form.date_format}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="MM/DD/YYYY">MM/DD/YYYY</SelectItem>
@@ -92,7 +99,9 @@ export function UserSettingsSheet({ open, onClose }: Props) {
               onValueChange={v => set('language', v as UserPreferences['language'])}
             >
               <SelectTrigger className="w-full">
-                <SelectValue />
+                <SelectValue>
+                  {languageLabels[form.language]}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="en">English</SelectItem>

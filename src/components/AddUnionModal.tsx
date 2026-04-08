@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { usePersons } from '@/hooks/usePersons'
+import { useUserPreferences } from '@/hooks/useUserPreferences'
 import { useCreateUnion, useAddMember, useDeleteUnion } from '@/hooks/useUnions'
 import { Button } from '@/components/ui/button'
 import {
@@ -8,6 +9,8 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from '@/components/ui/dialog'
+import { getPersonName } from '@/lib/getPersonName'
+import { DEFAULT_PREFERENCES } from '@/lib/api/userPreferences'
 
 interface Props {
   treeId: string
@@ -17,12 +20,15 @@ interface Props {
 
 export function AddUnionModal({ treeId, open, onClose }: Props) {
   const { data: persons = [] } = usePersons(treeId)
+  const { data: prefs } = useUserPreferences()
   const createUnion = useCreateUnion(treeId)
   const addMember = useAddMember(treeId)
   const deleteUnion = useDeleteUnion(treeId)
   const [parent1, setParent1] = useState('')
   const [parent2, setParent2] = useState('')
   const [error, setError] = useState<string | null>(null)
+
+  const nameOrder = prefs?.name_order ?? DEFAULT_PREFERENCES.name_order
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -60,24 +66,28 @@ export function AddUnionModal({ treeId, open, onClose }: Props) {
           {error && <p className="text-red-600 text-sm">{error}</p>}
           <Select value={parent1 || undefined} onValueChange={(v) => setParent1(v ?? '')}>
             <SelectTrigger>
-              <SelectValue placeholder="Parent 1 (optional)" />
+              <SelectValue placeholder="Parent 1 (optional)">
+                {parent1 && getPersonName(parent1, persons, nameOrder)}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {persons.map(p => (
                 <SelectItem key={p.id} value={p.id}>
-                  {p.first_name}{p.last_name ? ' ' + p.last_name : ''}
+                  {getPersonName(p.id, persons, nameOrder)}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
           <Select value={parent2 || undefined} onValueChange={(v) => setParent2(v ?? '')}>
             <SelectTrigger>
-              <SelectValue placeholder="Parent 2 (optional)" />
+              <SelectValue placeholder="Parent 2 (optional)">
+                {parent2 && getPersonName(parent2, persons, nameOrder)}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {persons.map(p => (
                 <SelectItem key={p.id} value={p.id}>
-                  {p.first_name}{p.last_name ? ' ' + p.last_name : ''}
+                  {getPersonName(p.id, persons, nameOrder)}
                 </SelectItem>
               ))}
             </SelectContent>
