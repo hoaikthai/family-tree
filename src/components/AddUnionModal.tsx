@@ -1,13 +1,21 @@
 import { useState } from 'react'
 import { usePersons } from '@/hooks/usePersons'
 import { useCreateUnion, useAddMember, useDeleteUnion } from '@/hooks/useUnions'
+import { Button } from '@/components/ui/button'
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from '@/components/ui/select'
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle,
+} from '@/components/ui/dialog'
 
 interface Props {
   treeId: string
+  open: boolean
   onClose: () => void
 }
 
-export function AddUnionModal({ treeId, onClose }: Props) {
+export function AddUnionModal({ treeId, open, onClose }: Props) {
   const { data: persons = [] } = usePersons(treeId)
   const createUnion = useCreateUnion(treeId)
   const addMember = useAddMember(treeId)
@@ -43,40 +51,47 @@ export function AddUnionModal({ treeId, onClose }: Props) {
   const isPending = createUnion.isPending || addMember.isPending
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <form onSubmit={handleSubmit}
-        className="bg-white rounded-xl shadow-xl p-6 w-80 flex flex-col gap-4">
-        <h2 className="text-lg font-bold">Create family unit</h2>
-        {error && <p className="text-red-600 text-sm">{error}</p>}
-        <select value={parent1} onChange={e => setParent1(e.target.value)}
-          className="border rounded px-3 py-2">
-          <option value="">Parent 1 (optional)</option>
-          {persons.map(p => (
-            <option key={p.id} value={p.id}>
-              {p.first_name}{p.last_name ? ' ' + p.last_name : ''}
-            </option>
-          ))}
-        </select>
-        <select value={parent2} onChange={e => setParent2(e.target.value)}
-          className="border rounded px-3 py-2">
-          <option value="">Parent 2 (optional)</option>
-          {persons.map(p => (
-            <option key={p.id} value={p.id}>
-              {p.first_name}{p.last_name ? ' ' + p.last_name : ''}
-            </option>
-          ))}
-        </select>
-        <div className="flex gap-2 justify-end">
-          <button type="button" onClick={onClose} disabled={isPending}
-            className="px-4 py-2 border rounded disabled:opacity-50">
-            Cancel
-          </button>
-          <button type="submit" disabled={isPending}
-            className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50">
-            {isPending ? 'Creating…' : 'Create'}
-          </button>
-        </div>
-      </form>
-    </div>
+    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="w-80">
+        <DialogHeader>
+          <DialogTitle>Create family unit</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          {error && <p className="text-red-600 text-sm">{error}</p>}
+          <Select value={parent1 || undefined} onValueChange={(v) => setParent1(v ?? '')}>
+            <SelectTrigger>
+              <SelectValue placeholder="Parent 1 (optional)" />
+            </SelectTrigger>
+            <SelectContent>
+              {persons.map(p => (
+                <SelectItem key={p.id} value={p.id}>
+                  {p.first_name}{p.last_name ? ' ' + p.last_name : ''}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={parent2 || undefined} onValueChange={(v) => setParent2(v ?? '')}>
+            <SelectTrigger>
+              <SelectValue placeholder="Parent 2 (optional)" />
+            </SelectTrigger>
+            <SelectContent>
+              {persons.map(p => (
+                <SelectItem key={p.id} value={p.id}>
+                  {p.first_name}{p.last_name ? ' ' + p.last_name : ''}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <div className="flex gap-2 justify-end">
+            <Button type="button" variant="outline" onClick={onClose} disabled={isPending}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isPending}>
+              {isPending ? 'Creating…' : 'Create'}
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
   )
 }
