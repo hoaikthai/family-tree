@@ -1,4 +1,5 @@
 import { useState, type SubmitEvent } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useCreatePerson } from '@/hooks/usePersons'
 import type { Database } from '@/lib/database.types'
 import { Button } from '@/components/ui/button'
@@ -21,6 +22,7 @@ interface Props {
 }
 
 export function AddPersonModal({ treeId, open, onClose }: Props) {
+  const { t } = useTranslation()
   const createPerson = useCreatePerson(treeId)
   const [form, setForm] = useState({
     first_name: '',
@@ -59,33 +61,37 @@ export function AddPersonModal({ treeId, open, onClose }: Props) {
     }
   }
 
-  const genderLabels: Record<string, string> = { male: 'Male', female: 'Female', other: 'Other' }
+  const genderLabels: Record<string, string> = {
+    male: t('personForm.gender.male'),
+    female: t('personForm.gender.female'),
+    other: t('personForm.gender.other'),
+  }
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="w-96 max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add person</DialogTitle>
+          <DialogTitle>{t('addPersonModal.title')}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
           {error && <p className="text-red-600 text-sm">{error}</p>}
-          <Input required placeholder="First name *" value={form.first_name}
+          <Input required placeholder={t('addPersonModal.firstName')} value={form.first_name}
             onChange={e => set('first_name', e.target.value)} />
-          <Input placeholder="Last name" value={form.last_name}
+          <Input placeholder={t('addPersonModal.lastName')} value={form.last_name}
             onChange={e => set('last_name', e.target.value)} />
           <Select
             value={form.gender ?? undefined}
             onValueChange={(v) => set('gender', v as typeof form.gender)}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Gender (optional)">
+              <SelectValue placeholder={t('personForm.gender')}>
                 {form.gender && genderLabels[form.gender]}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="male">Male</SelectItem>
-              <SelectItem value="female">Female</SelectItem>
-              <SelectItem value="other">Other</SelectItem>
+              <SelectItem value="male">{t('personForm.gender.male')}</SelectItem>
+              <SelectItem value="female">{t('personForm.gender.female')}</SelectItem>
+              <SelectItem value="other">{t('personForm.gender.other')}</SelectItem>
             </SelectContent>
           </Select>
           <div className="flex gap-2 items-center">
@@ -95,7 +101,7 @@ export function AddPersonModal({ treeId, open, onClose }: Props) {
             <Label className="flex items-center gap-1 text-sm whitespace-nowrap">
               <input type="checkbox" checked={form.is_birth_year_only}
                 onChange={e => set('is_birth_year_only', e.target.checked)} />
-              Year only
+              {t('addPersonModal.birthDateOnly')}
             </Label>
           </div>
           <div className="flex gap-2 items-center">
@@ -105,18 +111,18 @@ export function AddPersonModal({ treeId, open, onClose }: Props) {
             <Label className="flex items-center gap-1 text-sm whitespace-nowrap">
               <input type="checkbox" checked={form.is_death_year_only}
                 onChange={e => set('is_death_year_only', e.target.checked)} />
-              Year only
+              {t('personForm.deathDateOnly')}
             </Label>
           </div>
-          <Textarea placeholder="Notes" value={form.notes}
+          <Textarea placeholder={t('personForm.notes')} value={form.notes}
             onChange={e => set('notes', e.target.value)}
             className="resize-none h-20" />
           <div className="flex gap-2 justify-end">
             <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
+              {t('addPersonModal.button.cancel')}
             </Button>
             <Button type="submit" disabled={createPerson.isPending}>
-              {createPerson.isPending ? 'Adding…' : 'Add'}
+              {createPerson.isPending ? t('addPersonModal.button.creating') : t('addPersonModal.button.create')}
             </Button>
           </div>
         </form>

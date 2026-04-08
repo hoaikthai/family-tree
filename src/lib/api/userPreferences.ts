@@ -3,7 +3,7 @@ import { supabase } from '../supabase'
 export interface UserPreferences {
   name_order: 'first-last' | 'last-first'
   date_format: 'MM/DD/YYYY' | 'DD/MM/YYYY' | 'YYYY-MM-DD'
-  language: 'en' | 'fr' | 'vi'
+  language: 'en' | 'vi'
 }
 
 export const DEFAULT_PREFERENCES: UserPreferences = {

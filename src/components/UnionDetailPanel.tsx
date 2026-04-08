@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { usePersons } from '@/hooks/usePersons'
 import { useUserPreferences } from '@/hooks/useUserPreferences'
 import { useUnions, useAddChild, useRemoveChild, useUpdateChildPosition } from '@/hooks/useUnions'
@@ -16,6 +17,7 @@ type Props = {
 }
 
 export function UnionDetailPanel({ unionId, treeId, open, onClose }: Props) {
+  const { t } = useTranslation()
   const { data: unions } = useUnions(treeId)
   const { data: persons } = usePersons(treeId)
   const { data: prefs } = useUserPreferences()
@@ -62,14 +64,14 @@ export function UnionDetailPanel({ unionId, treeId, open, onClose }: Props) {
         {union && (
           <>
             <SheetHeader className="p-4 border-b">
-              <SheetTitle>Family Unit</SheetTitle>
+              <SheetTitle>{t('unionDetailPanel.title')}</SheetTitle>
             </SheetHeader>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-6">
               <section>
-                <h3 className="text-sm font-medium text-gray-500 mb-2">Parents</h3>
+                <h3 className="text-sm font-medium text-gray-500 mb-2">{t('unionDetailPanel.parents')}</h3>
                 {members.length === 0 ? (
-                  <p className="text-sm text-gray-400 italic">No parents</p>
+                  <p className="text-sm text-gray-400 italic">{t('unionDetailPanel.noParents')}</p>
                 ) : (
                   <ul className="space-y-1">
                     {members.map(p => (
@@ -80,9 +82,9 @@ export function UnionDetailPanel({ unionId, treeId, open, onClose }: Props) {
               </section>
 
               <section>
-                <h3 className="text-sm font-medium text-gray-500 mb-2">Children</h3>
+                <h3 className="text-sm font-medium text-gray-500 mb-2">{t('unionDetailPanel.children')}</h3>
                 {children.length === 0 ? (
-                  <p className="text-sm text-gray-400 italic">No children</p>
+                  <p className="text-sm text-gray-400 italic">{t('unionDetailPanel.noChildren')}</p>
                 ) : (
                   <ul className="space-y-2">
                     {children.map((c, i) => (
@@ -102,7 +104,7 @@ export function UnionDetailPanel({ unionId, treeId, open, onClose }: Props) {
                           size="icon"
                           onClick={() => move(c.person_id, c.position, children[i - 1].position)}
                           disabled={i === 0 || updatePos.isPending}
-                          aria-label="Move up"
+                          aria-label={t('unionDetailPanel.button.moveUp')}
                           className="h-7 w-7"
                         >↑</Button>
                         <Button
@@ -110,7 +112,7 @@ export function UnionDetailPanel({ unionId, treeId, open, onClose }: Props) {
                           size="icon"
                           onClick={() => move(c.person_id, c.position, children[i + 1].position)}
                           disabled={i === children.length - 1 || updatePos.isPending}
-                          aria-label="Move down"
+                          aria-label={t('unionDetailPanel.button.moveDown')}
                           className="h-7 w-7"
                         >↓</Button>
                         <Button
@@ -118,7 +120,7 @@ export function UnionDetailPanel({ unionId, treeId, open, onClose }: Props) {
                           size="icon"
                           onClick={() => removeChild.mutate({ unionId: union!.id, personId: c.person_id })}
                           disabled={removeChild.isPending}
-                          aria-label="Remove child"
+                          aria-label={t('unionDetailPanel.button.remove')}
                           className="h-7 w-7 text-gray-400 hover:text-red-500"
                         >×</Button>
                       </li>
@@ -129,7 +131,7 @@ export function UnionDetailPanel({ unionId, treeId, open, onClose }: Props) {
                   <div className="flex gap-2 mt-3">
                     <Select value={selectedPersonId || ''} onValueChange={setSelectedPersonId}>
                       <SelectTrigger className="flex-1 h-8 text-sm">
-                        <SelectValue placeholder="Add child…">
+                        <SelectValue placeholder={t('unionDetailPanel.addChild')}>
                           {selectedPersonId && getPersonName(selectedPersonId, persons!, nameOrder)}
                         </SelectValue>
                       </SelectTrigger>
@@ -146,7 +148,7 @@ export function UnionDetailPanel({ unionId, treeId, open, onClose }: Props) {
                       onClick={handleAddChild}
                       disabled={!selectedPersonId || addChild.isPending}
                       className="h-8"
-                    >Add</Button>
+                    >{t('unionDetailPanel.button.add')}</Button>
                   </div>
                 )}
               </section>

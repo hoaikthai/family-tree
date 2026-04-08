@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { usePersons } from '@/hooks/usePersons'
 import { useUserPreferences } from '@/hooks/useUserPreferences'
 import { useCreateUnion, useAddMember, useDeleteUnion } from '@/hooks/useUnions'
@@ -19,6 +20,7 @@ interface Props {
 }
 
 export function AddUnionModal({ treeId, open, onClose }: Props) {
+  const { t } = useTranslation()
   const { data: persons = [] } = usePersons(treeId)
   const { data: prefs } = useUserPreferences()
   const createUnion = useCreateUnion(treeId)
@@ -33,7 +35,7 @@ export function AddUnionModal({ treeId, open, onClose }: Props) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (parent1 && parent2 && parent1 === parent2) {
-      setError('Both parents cannot be the same person')
+      setError(t('addUnionModal.error.sameParent'))
       return
     }
     setError(null)
@@ -60,13 +62,13 @@ export function AddUnionModal({ treeId, open, onClose }: Props) {
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="w-80">
         <DialogHeader>
-          <DialogTitle>Create family unit</DialogTitle>
+          <DialogTitle>{t('addUnionModal.title')}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {error && <p className="text-red-600 text-sm">{error}</p>}
           <Select value={parent1 || undefined} onValueChange={(v) => setParent1(v ?? '')}>
             <SelectTrigger>
-              <SelectValue placeholder="Parent 1 (optional)">
+              <SelectValue placeholder={t('addUnionModal.parent1')}>
                 {parent1 && getPersonName(parent1, persons, nameOrder)}
               </SelectValue>
             </SelectTrigger>
@@ -80,7 +82,7 @@ export function AddUnionModal({ treeId, open, onClose }: Props) {
           </Select>
           <Select value={parent2 || undefined} onValueChange={(v) => setParent2(v ?? '')}>
             <SelectTrigger>
-              <SelectValue placeholder="Parent 2 (optional)">
+              <SelectValue placeholder={t('addUnionModal.parent2')}>
                 {parent2 && getPersonName(parent2, persons, nameOrder)}
               </SelectValue>
             </SelectTrigger>
@@ -94,10 +96,10 @@ export function AddUnionModal({ treeId, open, onClose }: Props) {
           </Select>
           <div className="flex gap-2 justify-end">
             <Button type="button" variant="outline" onClick={onClose} disabled={isPending}>
-              Cancel
+              {t('addUnionModal.button.cancel')}
             </Button>
             <Button type="submit" disabled={isPending}>
-              {isPending ? 'Creating…' : 'Create'}
+              {isPending ? t('addUnionModal.button.creating') : t('addUnionModal.button.create')}
             </Button>
           </div>
         </form>

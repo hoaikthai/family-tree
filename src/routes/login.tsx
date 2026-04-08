@@ -1,5 +1,6 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
@@ -14,6 +15,7 @@ export const Route = createFileRoute('/login')({
 })
 
 function LoginPage() {
+  const { t } = useTranslation()
   const { signIn, signUp } = useAuth()
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
@@ -37,21 +39,21 @@ function LoginPage() {
     <div className="min-h-screen flex items-center justify-center">
       <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-80">
         <h1 className="text-2xl font-bold text-center">
-          {mode === 'signin' ? 'Sign in' : 'Create account'}
+          {mode === 'signin' ? t('login.signIn') : t('login.createAccount')}
         </h1>
         {error && <p className="text-red-600 text-sm">{error}</p>}
         <Input
-          type="email" placeholder="Email" value={email}
+          type="email" placeholder={t('login.email')} value={email}
           onChange={e => setEmail(e.target.value)}
           required
         />
         <Input
-          type="password" placeholder="Password" value={password}
+          type="password" placeholder={t('login.password')} value={password}
           onChange={e => setPassword(e.target.value)}
           required
         />
         <Button type="submit" disabled={isSubmitting} className="w-full">
-          {isSubmitting ? 'Please wait…' : mode === 'signin' ? 'Sign in' : 'Sign up'}
+          {isSubmitting ? t('login.pleaseWait') : mode === 'signin' ? t('login.signIn') : t('login.signUp')}
         </Button>
         <Button
           type="button"
@@ -60,7 +62,7 @@ function LoginPage() {
           className="text-sm"
           onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}
         >
-          {mode === 'signin' ? 'No account? Sign up' : 'Have an account? Sign in'}
+          {mode === 'signin' ? t('login.noAccount') : t('login.haveAccount')}
         </Button>
       </form>
     </div>

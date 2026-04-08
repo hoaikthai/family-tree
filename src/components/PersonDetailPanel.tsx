@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { usePersons, useUpdatePerson, useDeletePerson, useUploadPhoto } from '@/hooks/usePersons'
 import { useUserPreferences } from '@/hooks/useUserPreferences'
 import { Button } from '@/components/ui/button'
@@ -19,6 +20,7 @@ interface Props {
 }
 
 export function PersonDetailPanel({ treeId, personId, open, onClose }: Props) {
+  const { t } = useTranslation()
   const { data: persons = [] } = usePersons(treeId)
   const updatePerson = useUpdatePerson(treeId)
   const deletePerson = useDeletePerson(treeId)
@@ -44,7 +46,11 @@ export function PersonDetailPanel({ treeId, personId, open, onClose }: Props) {
 
   const nameOrder = prefs?.name_order ?? DEFAULT_PREFERENCES.name_order
   const dateFormat = prefs?.date_format ?? DEFAULT_PREFERENCES.date_format
-  const genderLabels: Record<string, string> = { male: 'Male', female: 'Female', other: 'Other' }
+  const genderLabels: Record<string, string> = {
+    male: t('personForm.gender.male'),
+    female: t('personForm.gender.female'),
+    other: t('personForm.gender.other'),
+  }
 
   function startEditing() {
     if (!person) return
@@ -131,23 +137,23 @@ export function PersonDetailPanel({ treeId, personId, open, onClose }: Props) {
             {editing ? (
               <form onSubmit={handleEditSubmit} className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
                 {editError && <p className="text-red-600 text-sm">{editError}</p>}
-                <Input required placeholder="First name *" value={editForm.first_name}
+                <Input required placeholder={t('addPersonModal.firstName')} value={editForm.first_name}
                   onChange={e => setField('first_name', e.target.value)} />
-                <Input placeholder="Last name" value={editForm.last_name}
+                <Input placeholder={t('addPersonModal.lastName')} value={editForm.last_name}
                   onChange={e => setField('last_name', e.target.value)} />
                 <Select
                   value={editForm.gender || undefined}
                   onValueChange={v => setField('gender', v as typeof editForm.gender)}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Gender (optional)">
+                    <SelectValue placeholder={t('personForm.gender')}>
                       {editForm.gender && genderLabels[editForm.gender]}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="male">Male</SelectItem>
-                    <SelectItem value="female">Female</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
+                    <SelectItem value="male">{t('personForm.gender.male')}</SelectItem>
+                    <SelectItem value="female">{t('personForm.gender.female')}</SelectItem>
+                    <SelectItem value="other">{t('personForm.gender.other')}</SelectItem>
                   </SelectContent>
                 </Select>
                 <div className="flex gap-2 items-center">
@@ -157,7 +163,7 @@ export function PersonDetailPanel({ treeId, personId, open, onClose }: Props) {
                   <Label className="flex items-center gap-1 text-sm whitespace-nowrap">
                     <input type="checkbox" checked={editForm.is_birth_year_only}
                       onChange={e => setField('is_birth_year_only', e.target.checked)} />
-                    Year only
+                    {t('addPersonModal.birthDateOnly')}
                   </Label>
                 </div>
                 <div className="flex gap-2 items-center">
@@ -167,19 +173,19 @@ export function PersonDetailPanel({ treeId, personId, open, onClose }: Props) {
                   <Label className="flex items-center gap-1 text-sm whitespace-nowrap">
                     <input type="checkbox" checked={editForm.is_death_year_only}
                       onChange={e => setField('is_death_year_only', e.target.checked)} />
-                    Year only
+                    {t('personForm.deathDateOnly')}
                   </Label>
                 </div>
-                <Textarea placeholder="Notes" value={editForm.notes}
+                <Textarea placeholder={t('personForm.notes')} value={editForm.notes}
                   onChange={e => setField('notes', e.target.value)}
                   className="resize-none h-20" />
                 <div className="flex gap-2 mt-auto pt-2">
                   <Button type="button" variant="outline" className="flex-1"
                     onClick={() => setEditing(false)}>
-                    Cancel
+                    {t('personDetailPanel.button.cancel')}
                   </Button>
                   <Button type="submit" className="flex-1" disabled={updatePerson.isPending}>
-                    {updatePerson.isPending ? 'Saving…' : 'Save'}
+                    {updatePerson.isPending ? t('personDetailPanel.button.saving') : t('personDetailPanel.button.save')}
                   </Button>
                 </div>
               </form>
@@ -210,17 +216,17 @@ export function PersonDetailPanel({ treeId, personId, open, onClose }: Props) {
 
                   {/* Details */}
                   <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
-                    <dt className="text-gray-500">Gender</dt>
+                    <dt className="text-gray-500">{t('personForm.gender')}</dt>
                     <dd className="capitalize">{person.gender ?? '—'}</dd>
-                    <dt className="text-gray-500">Born</dt>
+                    <dt className="text-gray-500">{t('personForm.born')}</dt>
                     <dd>{formatDate(person.birth_date, person.is_birth_year_only, dateFormat)}</dd>
-                    <dt className="text-gray-500">Died</dt>
+                    <dt className="text-gray-500">{t('personForm.died')}</dt>
                     <dd>{formatDate(person.death_date, person.is_death_year_only, dateFormat)}</dd>
                   </dl>
 
                   {person.notes && (
                     <div className="border-t pt-3">
-                      <p className="text-xs text-gray-500 mb-1">Notes</p>
+                      <p className="text-xs text-gray-500 mb-1">{t('personForm.notes')}</p>
                       <p className="text-sm text-gray-700 whitespace-pre-wrap">{person.notes}</p>
                     </div>
                   )}
@@ -230,7 +236,7 @@ export function PersonDetailPanel({ treeId, personId, open, onClose }: Props) {
                 <div className="border-t p-4 flex flex-col gap-2">
                   {deleteError && <p className="text-red-600 text-xs">{deleteError}</p>}
                   <Button className="w-full" onClick={startEditing}>
-                    Edit
+                    {t('personDetailPanel.button.edit')}
                   </Button>
                   <Button
                     variant="destructive"
@@ -238,7 +244,7 @@ export function PersonDetailPanel({ treeId, personId, open, onClose }: Props) {
                     onClick={handleDelete}
                     disabled={deletePerson.isPending}
                   >
-                    {deletePerson.isPending ? 'Deleting…' : 'Delete'}
+                    {deletePerson.isPending ? t('personDetailPanel.button.deleting') : t('personDetailPanel.button.delete')}
                   </Button>
                 </div>
               </>

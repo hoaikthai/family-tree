@@ -2,8 +2,12 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
+import { initializeLanguage } from '@/lib/i18n'
 import { routeTree } from './routeTree.gen'
 import './index.css'
+
+// Initialize i18n before rendering
+initializeLanguage()
 
 const queryClient = new QueryClient({
   defaultOptions: {

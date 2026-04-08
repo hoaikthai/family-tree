@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { TreeCanvas } from '@/components/TreeCanvas'
 import { PersonDetailPanel } from '@/components/PersonDetailPanel'
 import { UnionDetailPanel } from '@/components/UnionDetailPanel'
@@ -14,6 +15,7 @@ export const Route = createFileRoute('/_auth/trees/$treeId')({
 })
 
 function TreeEditor() {
+  const { t } = useTranslation()
   const { treeId } = Route.useParams()
   const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null)
   const [selectedUnionId, setSelectedUnionId] = useState<string | null>(null)
@@ -24,22 +26,22 @@ function TreeEditor() {
     <div className="flex h-screen flex-col">
       <nav className="flex items-center justify-between px-4 py-2 border-b bg-white z-10">
         <Link to="/dashboard" className={cn(buttonVariants({ variant: 'link', size: 'sm' }), 'p-0')}>
-          ← Dashboard
+          ← {t('common.dashboard')}
         </Link>
         <div className="flex gap-2">
           <UserSettingsButton />
           <Button onClick={() => setShowAddPerson(true)}>
-            Add person
+            {t('treeEditor.addPerson')}
           </Button>
           <Button variant="outline" onClick={() => setShowAddUnion(true)}>
-            Add union
+            {t('treeEditor.addUnion')}
           </Button>
           <Link
             to="/trees/$treeId/settings"
             params={{ treeId }}
             className={buttonVariants({ variant: 'outline', size: 'sm' })}
           >
-            Settings
+            {t('common.settings')}
           </Link>
         </div>
       </nav>
