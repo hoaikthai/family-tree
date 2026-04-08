@@ -2,6 +2,9 @@ import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useCreateTree, useDeleteTree, useTrees } from '@/hooks/useTrees'
+import { Button, buttonVariants } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/_auth/dashboard')({
   component: Dashboard,
@@ -33,9 +36,9 @@ function Dashboard() {
     <div className="max-w-2xl mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">My Family Trees</h1>
-        <button onClick={() => signOut()} className="text-sm text-gray-500 underline">
+        <Button variant="link" size="sm" className="text-gray-500" onClick={() => signOut()}>
           Sign out
-        </button>
+        </Button>
       </div>
 
       {createError && <p className="text-red-600 text-sm mb-2">{createError}</p>}
@@ -44,16 +47,15 @@ function Dashboard() {
       )}
 
       <form onSubmit={handleCreate} className="flex gap-2 mb-6">
-        <input
+        <Input
           value={newName}
           onChange={e => setNewName(e.target.value)}
           placeholder="New tree name"
-          className="border rounded px-3 py-2 flex-1"
+          className="flex-1"
         />
-        <button type="submit" disabled={createTree.isPending}
-          className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50">
-          Create
-        </button>
+        <Button type="submit" disabled={createTree.isPending}>
+          {createTree.isPending ? 'Creating…' : 'Create'}
+        </Button>
       </form>
 
       {isLoading && <p className="text-gray-500">Loading…</p>}
@@ -61,16 +63,22 @@ function Dashboard() {
       <ul className="flex flex-col gap-2">
         {trees?.map(tree => (
           <li key={tree.id} className="flex items-center justify-between border rounded px-4 py-3">
-            <Link to="/trees/$treeId" params={{ treeId: tree.id }}
-              className="font-medium hover:underline">
+            <Link
+              to="/trees/$treeId"
+              params={{ treeId: tree.id }}
+              className={cn(buttonVariants({ variant: 'link' }), 'font-medium p-0 h-auto')}
+            >
               {tree.name}
             </Link>
-            <button
+            <Button
+              variant="link"
+              size="sm"
+              className="text-red-500"
               onClick={() => deleteTree.mutate(tree.id)}
               disabled={deleteTree.isPending}
-              className="text-red-500 text-sm hover:underline disabled:opacity-50">
+            >
               Delete
-            </button>
+            </Button>
           </li>
         ))}
       </ul>
