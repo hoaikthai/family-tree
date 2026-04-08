@@ -3,6 +3,10 @@ import { useEffect, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useUpdateTree } from '@/hooks/useTrees'
 import { getTree, togglePublic } from '@/lib/api/trees'
+import { Button, buttonVariants } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/_auth/trees/$treeId/settings')({
   component: TreeSettings,
@@ -61,21 +65,21 @@ function TreeSettings() {
 
   return (
     <div className="max-w-lg mx-auto p-6 flex flex-col gap-6">
-      <Link to="/trees/$treeId" params={{ treeId }} className="text-sm text-blue-600 underline">
+      <Link
+        to="/trees/$treeId"
+        params={{ treeId }}
+        className={cn(buttonVariants({ variant: 'link', size: 'sm' }), 'self-start p-0')}
+      >
         ← Back to tree
       </Link>
       <h1 className="text-2xl font-bold">Tree settings</h1>
 
       {/* Rename */}
       <section className="flex flex-col gap-2">
-        <label htmlFor="tree-name" className="font-medium">Name</label>
+        <Label htmlFor="tree-name" className="font-medium">Name</Label>
         <form onSubmit={handleRename} className="flex gap-2">
-          <input id="tree-name" value={name} onChange={e => setName(e.target.value)}
-            className="border rounded px-3 py-2 flex-1" />
-          <button type="submit" disabled={updateTree.isPending}
-            className="bg-blue-600 text-white px-4 rounded disabled:opacity-50">
-            Save
-          </button>
+          <Input id="tree-name" value={name} onChange={e => setName(e.target.value)} className="flex-1" />
+          <Button type="submit" disabled={updateTree.isPending}>Save</Button>
         </form>
         {renameError && <p className="text-red-600 text-sm">{renameError}</p>}
       </section>
@@ -91,7 +95,7 @@ function TreeSettings() {
             onClick={handleToggle}
             disabled={togglePending}
             aria-label={tree?.is_public ? 'Make private' : 'Make public'}
-            className={`relative w-12 h-6 rounded-full transition-colors disabled:opacity-50 ${tree?.is_public ? 'bg-blue-600' : 'bg-gray-300'}`}>
+            className={`relative w-12 h-6 rounded-full transition-colors disabled:opacity-50 cursor-pointer ${tree?.is_public ? 'bg-blue-600' : 'bg-gray-300'}`}>
             <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${tree?.is_public ? 'translate-x-6' : 'translate-x-0'}`} />
           </button>
         </div>
@@ -101,14 +105,12 @@ function TreeSettings() {
       {/* Share link */}
       {tree?.is_public && (
         <section className="flex flex-col gap-2">
-          <label className="font-medium">Share link</label>
+          <Label className="font-medium">Share link</Label>
           <div className="flex gap-2">
-            <input readOnly value={`${window.location.origin}/t/${treeId}`}
-              className="border rounded px-3 py-2 flex-1 text-sm bg-gray-50" />
-            <button onClick={handleCopy}
-              className="border rounded px-3 py-2 text-sm whitespace-nowrap">
+            <Input readOnly value={`${window.location.origin}/t/${treeId}`} className="flex-1 text-sm bg-gray-50" />
+            <Button variant="outline" onClick={handleCopy}>
               {copied ? '✓ Copied' : 'Copy'}
-            </button>
+            </Button>
           </div>
         </section>
       )}
