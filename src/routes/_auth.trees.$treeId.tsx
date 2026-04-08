@@ -57,9 +57,11 @@ function TreeEditor() {
           onClose={() => setSelectedUnionId(null)}
         />
       </div>
-      {showAddPerson && (
-        <AddPersonModal treeId={treeId} onClose={() => setShowAddPerson(false)} />
-      )}
+      <AddPersonModal
+        treeId={treeId}
+        open={showAddPerson}
+        onClose={() => setShowAddPerson(false)}
+      />
       {showAddUnion && (
         <AddUnionModal treeId={treeId} onClose={() => setShowAddUnion(false)} />
       )}

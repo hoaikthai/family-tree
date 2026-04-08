@@ -1,15 +1,26 @@
 import { useState } from 'react'
 import { useCreatePerson } from '@/hooks/usePersons'
 import type { Database } from '@/lib/database.types'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from '@/components/ui/select'
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle,
+} from '@/components/ui/dialog'
 
 type PersonInsert = Database['public']['Tables']['persons']['Insert']
 
 interface Props {
   treeId: string
+  open: boolean
   onClose: () => void
 }
 
-export function AddPersonModal({ treeId, onClose }: Props) {
+export function AddPersonModal({ treeId, open, onClose }: Props) {
   const createPerson = useCreatePerson(treeId)
   const [form, setForm] = useState({
     first_name: '',
@@ -49,58 +60,63 @@ export function AddPersonModal({ treeId, onClose }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <form onSubmit={handleSubmit}
-        className="bg-white rounded-xl shadow-xl p-6 w-96 flex flex-col gap-3 max-h-[90vh] overflow-y-auto">
-        <h2 className="text-lg font-bold">Add person</h2>
-        {error && <p className="text-red-600 text-sm">{error}</p>}
-        <input required placeholder="First name *" value={form.first_name}
-          onChange={e => set('first_name', e.target.value)}
-          className="border rounded px-3 py-2" />
-        <input placeholder="Last name" value={form.last_name}
-          onChange={e => set('last_name', e.target.value)}
-          className="border rounded px-3 py-2" />
-        <select value={form.gender}
-          onChange={e => set('gender', e.target.value as typeof form.gender)}
-          className="border rounded px-3 py-2">
-          <option value="">Gender (optional)</option>
-          <option value="male">Male</option>
-          <option value="female">Female</option>
-          <option value="other">Other</option>
-        </select>
-        <div className="flex gap-2 items-center">
-          <input type="date" value={form.birth_date}
-            onChange={e => set('birth_date', e.target.value)}
-            className="border rounded px-3 py-2 flex-1" />
-          <label className="flex items-center gap-1 text-sm whitespace-nowrap">
-            <input type="checkbox" checked={form.is_birth_year_only}
-              onChange={e => set('is_birth_year_only', e.target.checked)} />
-            Year only
-          </label>
-        </div>
-        <div className="flex gap-2 items-center">
-          <input type="date" value={form.death_date}
-            onChange={e => set('death_date', e.target.value)}
-            className="border rounded px-3 py-2 flex-1" />
-          <label className="flex items-center gap-1 text-sm whitespace-nowrap">
-            <input type="checkbox" checked={form.is_death_year_only}
-              onChange={e => set('is_death_year_only', e.target.checked)} />
-            Year only
-          </label>
-        </div>
-        <textarea placeholder="Notes" value={form.notes}
-          onChange={e => set('notes', e.target.value)}
-          className="border rounded px-3 py-2 resize-none h-20" />
-        <div className="flex gap-2 justify-end">
-          <button type="button" onClick={onClose} className="px-4 py-2 border rounded">
-            Cancel
-          </button>
-          <button type="submit" disabled={createPerson.isPending}
-            className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50">
-            {createPerson.isPending ? 'Adding…' : 'Add'}
-          </button>
-        </div>
-      </form>
-    </div>
+    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="w-96 max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Add person</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+          {error && <p className="text-red-600 text-sm">{error}</p>}
+          <Input required placeholder="First name *" value={form.first_name}
+            onChange={e => set('first_name', e.target.value)} />
+          <Input placeholder="Last name" value={form.last_name}
+            onChange={e => set('last_name', e.target.value)} />
+          <Select
+            value={form.gender || undefined}
+            onValueChange={(v) => set('gender', v as typeof form.gender)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Gender (optional)" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="male">Male</SelectItem>
+              <SelectItem value="female">Female</SelectItem>
+              <SelectItem value="other">Other</SelectItem>
+            </SelectContent>
+          </Select>
+          <div className="flex gap-2 items-center">
+            <Input type="date" value={form.birth_date}
+              onChange={e => set('birth_date', e.target.value)}
+              className="flex-1" />
+            <Label className="flex items-center gap-1 text-sm whitespace-nowrap">
+              <input type="checkbox" checked={form.is_birth_year_only}
+                onChange={e => set('is_birth_year_only', e.target.checked)} />
+              Year only
+            </Label>
+          </div>
+          <div className="flex gap-2 items-center">
+            <Input type="date" value={form.death_date}
+              onChange={e => set('death_date', e.target.value)}
+              className="flex-1" />
+            <Label className="flex items-center gap-1 text-sm whitespace-nowrap">
+              <input type="checkbox" checked={form.is_death_year_only}
+                onChange={e => set('is_death_year_only', e.target.checked)} />
+              Year only
+            </Label>
+          </div>
+          <Textarea placeholder="Notes" value={form.notes}
+            onChange={e => set('notes', e.target.value)}
+            className="resize-none h-20" />
+          <div className="flex gap-2 justify-end">
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={createPerson.isPending}>
+              {createPerson.isPending ? 'Adding…' : 'Add'}
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
   )
 }
