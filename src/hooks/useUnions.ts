@@ -3,10 +3,11 @@ import {
   addChild, addMember, createUnion, deleteUnion,
   listUnions, removeChild, removeMember, updateChildPosition, updateUnionPosition
 } from '@/lib/api/unions'
+import { queryKeys } from '@/constants/queryKeys'
 
 export function useUnions(treeId: string) {
   return useQuery({
-    queryKey: ['unions', treeId],
+    queryKey: queryKeys.unions(treeId),
     queryFn: () => listUnions(treeId),
     enabled: !!treeId,
   })
@@ -16,7 +17,7 @@ export function useCreateUnion(treeId: string) {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: () => createUnion(treeId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['unions', treeId] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.unions(treeId) }),
   })
 }
 
@@ -24,7 +25,7 @@ export function useDeleteUnion(treeId: string) {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (id: string) => deleteUnion(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['unions', treeId] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.unions(treeId) }),
   })
 }
 
@@ -33,7 +34,7 @@ export function useAddMember(treeId: string) {
   return useMutation({
     mutationFn: ({ unionId, personId }: { unionId: string; personId: string }) =>
       addMember(unionId, personId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['unions', treeId] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.unions(treeId) }),
   })
 }
 
@@ -42,7 +43,7 @@ export function useRemoveMember(treeId: string) {
   return useMutation({
     mutationFn: ({ unionId, personId }: { unionId: string; personId: string }) =>
       removeMember(unionId, personId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['unions', treeId] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.unions(treeId) }),
   })
 }
 
@@ -51,7 +52,7 @@ export function useAddChild(treeId: string) {
   return useMutation({
     mutationFn: ({ unionId, personId }: { unionId: string; personId: string }) =>
       addChild(unionId, personId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['unions', treeId] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.unions(treeId) }),
   })
 }
 
@@ -60,7 +61,7 @@ export function useRemoveChild(treeId: string) {
   return useMutation({
     mutationFn: ({ unionId, personId }: { unionId: string; personId: string }) =>
       removeChild(unionId, personId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['unions', treeId] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.unions(treeId) }),
   })
 }
 
@@ -69,7 +70,7 @@ export function useUpdateChildPosition(treeId: string) {
   return useMutation({
     mutationFn: ({ unionId, personId, position }: { unionId: string; personId: string; position: number }) =>
       updateChildPosition(unionId, personId, position),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['unions', treeId] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.unions(treeId) }),
   })
 }
 

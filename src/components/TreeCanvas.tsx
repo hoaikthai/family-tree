@@ -24,13 +24,13 @@ interface Props {
 }
 
 export function TreeCanvas({ treeId, readOnly = false, onPersonClick, onUnionClick }: Props) {
-  const { data: persons } = usePersons(treeId)
-  const { data: unions } = useUnions(treeId)
+  const { data: persons = [] } = usePersons(treeId)
+  const { data: unions = [] } = useUnions(treeId)
   const updatePerson = useUpdatePerson(treeId)
   const updateUnionPos = useUpdateUnionPosition(treeId)
 
   const serverNodes: Node[] = useMemo(() => [
-    ...(persons ?? []).map(p => ({
+    ...persons.map(p => ({
       id: `person-${p.id}`,
       type: 'person' as const,
       position: { x: p.position_x, y: p.position_y },
@@ -44,7 +44,7 @@ export function TreeCanvas({ treeId, readOnly = false, onPersonClick, onUnionCli
       } satisfies PersonNodeData,
       draggable: !readOnly,
     })),
-    ...(unions ?? []).map(u => ({
+    ...unions.map(u => ({
       id: `union-${u.id}`,
       type: 'union' as const,
       position: { x: u.position_x, y: u.position_y },
@@ -54,7 +54,6 @@ export function TreeCanvas({ treeId, readOnly = false, onPersonClick, onUnionCli
   ], [persons, unions, readOnly])
 
   const edges: Edge[] = useMemo(() => {
-    if (!unions) return []
     const result: Edge[] = []
     for (const u of unions) {
       for (const { person_id } of (u.union_members ?? [])) {
@@ -76,7 +75,16 @@ export function TreeCanvas({ treeId, readOnly = false, onPersonClick, onUnionCli
   }, [unions])
 
   const [localNodes, setLocalNodes] = useState<Node[]>(serverNodes)
-  useEffect(() => { setLocalNodes(serverNodes) }, [serverNodes])
+
+  useEffect(() => {
+    setLocalNodes(prev => {
+      const prevById = new Map(prev.map(n => [n.id, n]))
+      return serverNodes.map(serverNode => {
+        const localNode = prevById.get(serverNode.id)
+        return localNode ? { ...serverNode, position: localNode.position } : serverNode
+      })
+    })
+  }, [serverNodes])
 
   const onNodesChange: OnNodesChange = useCallback(changes => {
     setLocalNodes(prev => applyNodeChanges(changes, prev))

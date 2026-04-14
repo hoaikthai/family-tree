@@ -7,6 +7,10 @@ import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
+import { queryKeys } from '@/constants/queryKeys'
+import type { Database } from '@/lib/database.types'
+
+type Tree = Database['public']['Tables']['trees']['Row']
 
 export const Route = createFileRoute('/_auth/trees/$treeId/settings')({
   component: TreeSettings,
@@ -16,7 +20,7 @@ function TreeSettings() {
   const { treeId } = Route.useParams()
   const qc = useQueryClient()
   const { data: tree } = useQuery({
-    queryKey: ['tree', treeId],
+    queryKey: queryKeys.tree(treeId),
     queryFn: () => getTree(treeId),
   })
   const updateTree = useUpdateTree()
@@ -36,7 +40,6 @@ function TreeSettings() {
     setRenameError(null)
     try {
       await updateTree.mutateAsync({ id: treeId, name: name.trim() })
-      qc.invalidateQueries({ queryKey: ['tree', treeId] })
     } catch (err) {
       setRenameError(err instanceof Error ? err.message : 'Failed to rename tree')
     }
@@ -47,9 +50,11 @@ function TreeSettings() {
     setToggleError(null)
     setTogglePending(true)
     try {
-      await togglePublic(treeId, !tree.is_public)
-      qc.invalidateQueries({ queryKey: ['tree', treeId] })
-      qc.invalidateQueries({ queryKey: ['trees'] })
+      const updatedTree = await togglePublic(treeId, !tree.is_public)
+      qc.setQueryData<Tree>(queryKeys.tree(treeId), updatedTree)
+      qc.setQueryData<Tree[]>(queryKeys.trees(), (prev) =>
+        prev?.map((t) => (t.id === treeId ? updatedTree : t)) ?? []
+      )
     } catch (err) {
       setToggleError(err instanceof Error ? err.message : 'Failed to update')
     } finally {
