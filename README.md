@@ -41,7 +41,7 @@ Copy `.env.example` to `.env.local` and fill in your Supabase credentials:
 
 ```env
 VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_SUPABASE_PUBLISHABLE_KEY=your_supabase_publishable_key
 ```
 
 ### Dev server
@@ -59,3 +59,4 @@ pnpm build
 ## Deployment
 
 The app deploys automatically to GitHub Pages on push to `main` via GitHub Actions.
+Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` as GitHub repository variables or secrets so the Pages build can inject them during `pnpm build`.
